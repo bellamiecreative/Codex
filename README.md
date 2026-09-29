@@ -1,11 +1,15 @@
-# HTML Live Editor
+# Code Studio V3
+A stable foundation for building HTML/CSS/JS projects on a phone.
 
-A simple free web/PWA app with:
-- HTML/CSS/JS editor
-- automatic live preview
-- split editor/preview layout
-- local save/reset
-- works on iPhone Safari and can be added to Home Screen
+Core:
+- project/file manager
+- line numbers
+- search
+- live preview
+- autosave in browser storage
+- import files
+- export full project as JSON
+- preview console/error messages
+- responsive mobile layout
 
-## GitHub Pages
-Upload these files to a GitHub repository, then enable Pages from Settings → Pages → Deploy from branch → main → / (root).
+Note: mobile browsers cannot always write arbitrary files directly into the phone filesystem. Export/download is provided as the reliable fallback.

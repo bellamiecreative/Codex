@@ -1,64 +1,109 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#0b0f17">
 <link rel="manifest" href="manifest.json">
-<title>HTML Live Editor</title>
+<title>Code Studio</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b0f17;color:#fff;overflow:hidden}
-header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #252b36;background:#111827}
-h1{font-size:16px;margin:0}.actions{display:flex;gap:7px}button{border:0;border-radius:8px;padding:7px 10px;background:#263041;color:#fff;font-weight:600}
-main{height:calc(100% - 52px);display:grid;grid-template-columns:1fr 1fr}
-.panel{min-width:0;display:flex;flex-direction:column}.panel+ .panel{border-left:1px solid #252b36}
-.tabs{display:flex;gap:4px;padding:7px;background:#151b26;border-bottom:1px solid #252b36}
-.tab{background:transparent;color:#aeb7c6}.tab.active{background:#2a3445;color:#fff}
-textarea{flex:1;width:100%;resize:none;border:0;outline:0;background:#0d121b;color:#e7edf7;padding:14px;font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}
-iframe{flex:1;width:100%;border:0;background:#fff}
-@media(max-width:700px){main{grid-template-columns:1fr}.panel.preview{display:flex}.panel.editor{height:52%}.panel.preview{height:48%}.panel+.panel{border-left:0;border-top:1px solid #252b36}}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#0b0f17;color:#e7edf7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}button{border:0;color:#e7edf7;background:#202938;border-radius:7px;padding:7px 10px;font-weight:600}button:active{opacity:.75}
+.app{height:100%;display:grid;grid-template-rows:52px 1fr 28px}
+.top{display:flex;align-items:center;gap:8px;padding:0 10px;background:#111827;border-bottom:1px solid #273142}.brand{font-weight:800;margin-right:auto}.muted{color:#8490a3;font-size:12px}
+.body{min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr) minmax(280px,1fr)}
+.sidebar{min-width:0;border-right:1px solid #273142;background:#101620;display:flex;flex-direction:column}
+.side-head{padding:9px;border-bottom:1px solid #273142;display:flex;gap:6px}.files{overflow:auto;padding:7px}.file{display:flex;gap:7px;align-items:center;width:100%;text-align:left;background:transparent;padding:8px;color:#b8c1d0}.file.active{background:#263142;color:#fff}.file small{margin-left:auto;color:#667286}
+.editor{min-width:0;display:flex;flex-direction:column}.tabs{height:40px;display:flex;align-items:center;gap:4px;padding:5px 7px;background:#151c27;border-bottom:1px solid #273142;overflow:auto}.tab{white-space:nowrap;background:transparent;color:#aeb7c6}.tab.active{background:#2a3547;color:#fff}
+.tools{display:flex;gap:5px;padding:5px 7px;background:#111822;border-bottom:1px solid #273142}.tools input{flex:1;min-width:80px;background:#0b1018;border:1px solid #303b4d;color:#fff;border-radius:7px;padding:7px 9px;outline:none}
+.editor-wrap{display:flex;flex:1;min-height:0;overflow:hidden;background:#0d121b}.numbers{width:48px;flex:none;overflow:hidden;padding:13px 7px 13px 0;text-align:right;color:#596579;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre;user-select:none}.code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#e7edf7;padding:13px 14px 13px 9px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre;overflow:auto;tab-size:2}
+.preview{min-width:0;display:flex;flex-direction:column;border-left:1px solid #273142;background:#fff}.preview-head{height:40px;display:flex;align-items:center;gap:7px;padding:5px 7px;background:#151c27;color:#fff}.preview iframe{flex:1;border:0;width:100%;background:#fff}.console{height:130px;overflow:auto;background:#080c12;color:#c9d2df;padding:8px;font:11px/1.45 ui-monospace,monospace;border-top:1px solid #273142;white-space:pre-wrap}
+.status{display:flex;align-items:center;padding:0 9px;background:#111827;color:#7f8a9c;font-size:11px;border-top:1px solid #273142}
+@media(max-width:850px){.body{grid-template-columns:170px minmax(0,1fr)}.preview{grid-column:1/-1;height:42%;border-left:0;border-top:1px solid #273142}.editor{height:58%}.body{grid-template-rows:58% 42%;display:grid}.sidebar{grid-column:1/-1;height:0;display:none}}
+@media(max-width:600px){.body{display:flex;flex-direction:column}.sidebar{display:none}.editor{height:58%;flex:none}.preview{height:42%;flex:none}}
 </style>
 </head>
 <body>
-<header><h1>HTML Live Editor</h1><div class="actions"><button id="save">Save</button><button id="reset">Reset</button></div></header>
-<main>
-<section class="panel editor">
-<div class="tabs">
-<button class="tab active" data-lang="html">HTML</button>
-<button class="tab" data-lang="css">CSS</button>
-<button class="tab" data-lang="js">JS</button>
-</div>
-<textarea id="code" spellcheck="false"></textarea>
+<div class="app">
+<header class="top">
+<div class="brand">Code Studio</div><span id="projectName" class="muted">My Project</span>
+<button id="newBtn">New</button><button id="importBtn">Import</button><button id="exportBtn">Export</button>
+<input id="filePicker" type="file" accept=".json,.html,.css,.js,.txt" hidden>
+</header>
+<div class="body">
+<aside class="sidebar">
+<div class="side-head"><button id="addBtn">+ File</button><button id="deleteBtn">Delete</button></div><div id="files" class="files"></div>
+</aside>
+<section class="editor">
+<div id="tabs" class="tabs"></div>
+<div class="tools"><input id="search" placeholder="Search in current file…"><button id="findNext">Find</button></div>
+<div class="editor-wrap"><div id="numbers" class="numbers">1</div><textarea id="code" class="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>
 </section>
-<section class="panel preview"><iframe id="preview" sandbox="allow-scripts allow-forms"></iframe></section>
-</main>
+<section class="preview">
+<div class="preview-head"><b>Live Preview</b><span id="statusText" class="muted">Ready</span></div>
+<iframe id="frame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
+<div id="console" class="console"></div>
+</section>
+</div>
+<footer class="status"><span id="saveState">Autosave on</span><span style="margin-left:auto">HTML/CSS/JS</span></footer>
+</div>
 <script>
-const defaults={
-html:`<div class="card">
-  <h1>Hello 👋</h1>
-  <p>Write HTML, CSS and JS — preview updates automatically.</p>
-  <button onclick="hello()">Click me</button>
-</div>`,
-css:`body{font-family:system-ui;padding:30px;background:#f5f7fb}
-.card{max-width:520px;margin:auto;padding:24px;border-radius:18px;background:white;box-shadow:0 8px 30px #0001}
+const starter={
+"index.html":`<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MyAI</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Hello 👋</h1>
+<p>This is your project.</p>
+<button onclick="hello()">Test JavaScript</button>
+<script src="script.js"><\/script>
+</body>
+</html>`,
+"style.css":`body{font-family:system-ui;padding:32px;background:#f5f7fb;color:#111827}
+h1{font-size:34px}
 button{padding:10px 14px;border:0;border-radius:10px;background:#111827;color:white}`,
-js:`function hello(){alert("Hello from JavaScript!");}`
+"script.js":`function hello(){console.log("JavaScript works");alert("Hello!");}`
 };
-let state=JSON.parse(localStorage.getItem("html-live-editor")||"null")||{...defaults};
-let lang="html";
-const ta=document.getElementById("code"), frame=document.getElementById("preview");
-function render(){
- ta.value=state[lang];
- const doc=`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>${state.css}</style></head><body>${state.html}<script>${state.js}<\/script></body></html>`;
- frame.srcdoc=doc;
+let files=JSON.parse(localStorage.getItem("code-studio-files")||"null")||starter;
+let current=localStorage.getItem("code-studio-current")||"index.html";
+let project=localStorage.getItem("code-studio-project")||"My Project";
+let searchIndex=-1;
+const $=id=>document.getElementById(id), code=$("code"), numbers=$("numbers"), frame=$("frame"), consoleBox=$("console");
+
+function persist(){localStorage.setItem("code-studio-files",JSON.stringify(files));localStorage.setItem("code-studio-current",current);localStorage.setItem("code-studio-project",project);$("saveState").textContent="Saved locally • "+new Date().toLocaleTimeString();}
+function lineNumbers(){let n=Math.max(1,code.value.split("\n").length);numbers.textContent=Array.from({length:n},(_,i)=>i+1).join("\n");numbers.scrollTop=code.scrollTop;}
+function tabs(){ $("tabs").innerHTML=Object.keys(files).map(f=>`<button class="tab ${f===current?"active":""}" data-file="${encodeURIComponent(f)}">${f}</button>`).join(""); document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>openFile(decodeURIComponent(b.dataset.file))); }
+function fileList(){ $("files").innerHTML=Object.keys(files).map(f=>`<button class="file ${f===current?"active":""}" data-file="${encodeURIComponent(f)}">📄 ${f}<small>${files[f].split("\n").length}</small></button>`).join("");document.querySelectorAll(".file").forEach(b=>b.onclick=()=>openFile(decodeURIComponent(b.dataset.file)));}
+function renderUI(){ $("projectName").textContent=project;tabs();fileList();code.value=files[current]??"";lineNumbers();updatePreview();}
+function openFile(f){if(!(f in files))return;current=f;searchIndex=-1;localStorage.setItem("code-studio-current",current);renderUI();}
+function updatePreview(){
+ let html=files["index.html"]||"", css=files["style.css"]||"", js=files["script.js"]||"";
+ consoleBox.textContent="";
+ const bridge=`<script>const oldLog=console.log;console.log=(...a)=>parent.postMessage({type:"log",value:a.map(x=>{try{return JSON.stringify(x)}catch(e){return String(x)}}).join(" ")},"*");window.onerror=(m,s,l,c)=>parent.postMessage({type:"error",value:m+" (line "+l+")"},"*");<\/script>`;
+ html=html.replace(/<link[^>]+href=["']style\.css["'][^>]*>/ig,"<style>"+css+"</style>");
+ html=html.replace(/<script[^>]+src=["']script\.js["'][^>]*><\/script>/ig,"<script>"+js+"<\/script>");
+ if(!/<style[\s>]/i.test(html))html=html.replace("</head>","<style>"+css+"</style></head>");
+ if(!/<script[\s>]/i.test(html))html=html.replace("</body>","<script>"+js+"<\/script></body>");
+ html=html.replace("<head>","<head>"+bridge);
+ frame.srcdoc=html;$("statusText").textContent="Live";
 }
-ta.addEventListener("input",()=>{state[lang]=ta.value;render()});
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
- document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
- b.classList.add("active");lang=b.dataset.lang;render();
-});
-document.getElementById("save").onclick=()=>{localStorage.setItem("html-live-editor",JSON.stringify(state));alert("Saved");};
-document.getElementById("reset").onclick=()=>{if(confirm("Reset project?")){state={...defaults};localStorage.removeItem("html-live-editor");render();}};
-render();
+code.addEventListener("input",()=>{files[current]=code.value;lineNumbers();updatePreview();persist();});
+code.addEventListener("scroll",()=>numbers.scrollTop=code.scrollTop);
+$("findNext").onclick=()=>{let q=$("search").value;if(!q)return;let text=code.value.toLowerCase(),needle=q.toLowerCase(),start=searchIndex<0?0:searchIndex+1;let p=text.indexOf(needle,start);if(p<0)p=text.indexOf(needle,0);if(p>=0){searchIndex=p;code.focus();code.setSelectionRange(p,p+q.length);code.scrollTop=Math.max(0,text.slice(0,p).split("\n").length*21-70)}};
+$("search").addEventListener("keydown",e=>{if(e.key==="Enter")$("findNext").click()});
+$("addBtn").onclick=()=>{let name=prompt("File name","new.html");if(!name)return;if(files[name]){alert("File already exists");return}files[name]="";openFile(name);persist();};
+$("deleteBtn").onclick=()=>{if(Object.keys(files).length<=1){alert("At least one file is required");return}if(!confirm("Delete "+current+"?"))return;delete files[current];current=Object.keys(files)[0];persist();renderUI();};
+$("newBtn").onclick=()=>{if(confirm("Create a new empty project?")){files={"index.html":starter["index.html"],"style.css":starter["style.css"],"script.js":starter["script.js"]};project="My Project";current="index.html";persist();renderUI();}};
+$("exportBtn").onclick=()=>{let data={name:project,files};let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(project.replace(/[^\w-]+/g,"-")||"project")+".json";a.click();URL.revokeObjectURL(a.href);};
+$("importBtn").onclick=()=>{$("filePicker").click()};
+$("filePicker").onchange=async e=>{let f=e.target.files[0];if(!f)return;let text=await f.text();if(f.name.endsWith(".json")){try{let d=JSON.parse(text);if(!d.files||typeof d.files!=="object")throw 0;files=d.files;project=d.name||"Imported Project";current=Object.keys(files)[0]||"index.html";persist();renderUI();}catch{alert("Invalid project file");}}else{let ext=f.name.split(".").pop().toLowerCase();let name=f.name;files[name]=text;current=name;persist();renderUI()}e.target.value=""};
+window.addEventListener("message",e=>{if(e.data?.type==="log")consoleBox.textContent+="✓ "+e.data.value+"\n";if(e.data?.type==="error")consoleBox.textContent+="✕ "+e.data.value+"\n"});
+window.addEventListener("beforeunload",persist);
+renderUI();
 </script>
 </body></html>
